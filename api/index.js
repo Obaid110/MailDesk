@@ -26,8 +26,6 @@ button:disabled{opacity:.6;cursor:wait}
 <h1>MailDesk</h1>
 <p>Send email from your verified Resend domains.</p>
 <form id="emailForm">
-<label>Dashboard password</label>
-<input id="password" type="password" required autocomplete="current-password">
 <label>Resend API Key</label>
 <input id="apiKey" type="password" placeholder="re_xxxxxxxxxxxxxxxxxxxx" required autocomplete="off">
 <label>From</label>
@@ -59,7 +57,6 @@ form.addEventListener("submit", async (event) => {
   status.textContent = "";
 
   const payload = {
-    password: document.getElementById("password").value,
     apiKey: document.getElementById("apiKey").value.trim(),
     from: document.getElementById("from").value.trim(),
     to: document.getElementById("to").value.trim(),
@@ -105,21 +102,8 @@ form.addEventListener("submit", async (event) => {
     }
 
     const {
-        password, apiKey, from, to, cc, bcc, subject, text
+        apiKey, from, to, cc, bcc, subject, text
     } = req.body || {};
-
-    if (!process.env.MAILDESK_PASSWORD) {
-        return res.status(500).json({
-            error: "Server environment variables are not configured."
-        });
-    }
-
-    if (
-        typeof password !== "string" ||
-        password !== process.env.MAILDESK_PASSWORD
-    ) {
-        return res.status(401).json({ error: "Invalid dashboard password." });
-    }
 
     if (typeof apiKey !== "string" || !apiKey.trim()) {
         return res.status(400).json({ error: "Resend API key is required." });

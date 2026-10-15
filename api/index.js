@@ -29,7 +29,7 @@ button:disabled{opacity:.6;cursor:wait}
 <label>Resend API Key</label>
 <input id="apiKey" type="password" placeholder="re_xxxxxxxxxxxxxxxxxxxx" required autocomplete="off">
 <label>From</label>
-<input id="from" placeholder="Your Name &lt;contact@yourdomain.com&gt;" required>
+<input id="from" placeholder="contact@yourdomain.com or Your Name &lt;contact@yourdomain.com&gt;" required>
 <label>To</label>
 <input id="to" placeholder="recipient@example.com" required>
 <label>CC (optional)</label>
@@ -118,15 +118,29 @@ form.addEventListener("submit", async (event) => {
             ? value.split(",").map((item) => item.trim()).filter(Boolean)
             : [];
 
+    const normalizeFrom = (value) => {
+        if (typeof value !== "string") return null;
+        const trimmed = value.trim();
+        if (!trimmed || trimmed.length > 200) return null;
+
+        const match = trimmed.match(/^([^<>]+)<([^<>]+)>$/);
+        if (match) {
+            const email = match[2].trim();
+            return isEmail(email) ? `${match[1].trim()} <${email}>` : null;
+        }
+
+        if (isEmail(trimmed)) return trimmed;
+
+        return null;
+    };
+
     const recipients = parseAddresses(to);
     const ccRecipients = parseAddresses(cc);
     const bccRecipients = parseAddresses(bcc);
+    const normalizedFrom = normalizeFrom(from);
 
     if (
-        typeof from !== "string" ||
-        from.length > 200 ||
-        !/^[^<>]+<[^<>]+>$/.test(from.trim()) ||
-        !isEmail(from.trim().match(/<([^<>]+)>$/)?.[1]) ||
+        !normalizedFrom ||
         recipients.length === 0 ||
         recipients.length > 50 ||
         !recipients.every(isEmail) ||
@@ -148,7 +162,7 @@ form.addEventListener("submit", async (event) => {
     }
 
     const email = {
-        from: from.trim(),
+        from: normalizedFrom,
         to: recipients,
         subject: subject.trim(),
         text

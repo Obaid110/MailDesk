@@ -28,7 +28,7 @@ MailDesk lets you send emails through your verified Resend domains using a clean
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/MailDesk.git
+git clone https://github.com/Obaid110/MailDesk.git
 cd MailDesk
 ```
 
